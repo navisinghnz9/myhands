@@ -7,7 +7,7 @@ class SubjectInfo:
     def __init__(self):
         self.name = None
         self.dob = None
-        self.hand = None
+        self.active_hand = None
         self.hand_type = None
         self.subjects_dir = "subjects"  # Directory where files will be saved and loaded from
 
@@ -22,7 +22,7 @@ class SubjectInfo:
             missing_fields.append("Name")
         if not self.dob:
             missing_fields.append("Date of Birth")
-        if not self.hand:
+        if not self.active_hand:
             missing_fields.append("Dominant Hand")
         if not self.hand_type:
             missing_fields.append("Hand Type")
@@ -98,7 +98,7 @@ class SubjectInfo:
 
     def generate_json(self):
         """Generate a JSON representation of the subject's information."""
-        if self.name and self.dob and self.hand and self.hand_type:
+        if self.name and self.dob and self.active_hand and self.hand_type:
             # Calculate age
             age = self.calculate_age()
 
@@ -107,7 +107,7 @@ class SubjectInfo:
                 "name": self.name,
                 "date_of_birth": self.dob,
                 "age": age if age is not None else "Unknown",
-                "left_handed": self.is_left_handed(),
+                "active_hand": self.active_hand,
                 "hand_type": self.hand_type
             }
 
@@ -127,7 +127,7 @@ class SubjectInfo:
 
     def is_left_handed(self):
         """Return if the subject is left-handed."""
-        return self.hand == 'left'
+        return self.active_hand == 'left'
 
     def input_name(self):
         """Input the name of the subject."""
@@ -137,12 +137,12 @@ class SubjectInfo:
         """Input the date of birth of the subject."""
         self.dob = input("\nEnter the date of birth (YYYY-MM-DD): ")
 
-    def select_hand(self):
+    def set_active_hand(self):
         """Input the dominant hand (left or right)."""
         while True:
             hand = input("\nIs the subject left-handed or right-handed? (left/right): ").lower()
             if hand in ['left', 'right']:
-                self.hand = hand  # Store the hand in the subject object
+                self.active_hand = hand  # Store the hand in the subject object
                 return
             else:
                 print("Invalid input. Please enter 'left' or 'right'.")
@@ -158,14 +158,14 @@ class SubjectInfo:
             else:
                 print("Invalid input. Please choose from 'fire', 'water', 'earth', or 'air'.")
 
-    def display_information(self):
+    def show_subject_info(self):
         """Display the entered subject information and show missing fields."""
         print("\nSubject Information:")
 
         # Display entered information
         print(f"Name: {self.name if self.name else 'Not entered'}")
         print(f"Date of Birth: {self.dob if self.dob else 'Not entered'}")
-        print(f"Dominant Hand: {self.hand.capitalize() if self.hand else 'Not entered'}")
+        print(f"Dominant Hand: {self.active_hand.capitalize() if self.active_hand else 'Not entered'}")
         print(f"Hand Type: {self.hand_type.capitalize() if self.hand_type else 'Not entered'}")
 
         # Get the missing fields using the common method
@@ -181,18 +181,17 @@ class SubjectInfo:
 
     def show_menu(self):
         print("+--------------------------------------------------+")
-        print("| SUBJECT INFO                                     |")
+        print("| SUBJECT INFORMATION MANAGER                      |")
         print("+--------------------------------------------------+")
         print("| 1. Enter Name                                    |")
         print("| 2. Enter Date of Birth                           |")
         print("| 3. Select Hand (Left or Right)                   |")
         print("| 4. Select Hand Type (Fire, Water, Earth, Air)    |")
-        print("| 5. Display Information                           |")
-        print("| 6. Generate JSON Output                          |")
-        print("| 7. Save Information to File                      |")
-        print("| 8. Load Information from File                    |")
-        print("| 9. Show All Subjects                             |")
-        print("| 10. Exit                                         |")
+        print("| 5. Show Subject Information                      |")
+        print("| 6. Save Information to File                      |")
+        print("| 7. Load Information from File                    |")
+        print("| 8. Show All Subjects                             |")
+        print("| q. Exit                                          |")
         print("+--------------------------------------------------+")
 
     def clear_screen(self):
@@ -202,15 +201,35 @@ class SubjectInfo:
         else:  # For macOS and Linux
             os.system("clear")
 
-    def load_from_file(self, filename):
+    def load_from_file(self):
         """Load subject information from a JSON file."""
+        filename = None
+        # Select a subject to load
+        try:
+            files = os.listdir(self.subjects_dir)
+            json_files = [f for f in files if f.endswith('.json')]
+            print("\nList of Subjects:")
+            for idx, file in enumerate(json_files, 1):
+                print(f"{idx}. {file.replace('.json', '')}")
+
+            choice = int(input("\nSelect a subject file to load (enter the number): "))
+            if 1 <= choice <= len(json_files):
+                selected_file = json_files[choice - 1]
+                filename = selected_file
+            else:
+                input("Invalid choice. Please select a valid number to choose file.")
+                return
+        except ValueError:
+            input("Invalid input. Please enter a valid number.")
+            return
+
         try:
             file_path = os.path.join(self.subjects_dir, filename)
             with open(file_path, 'r') as f:
                 data = json.load(f)
                 self.name = data.get("name")
                 self.dob = data.get("date_of_birth")
-                self.hand = data.get("left_handed")
+                self.active_hand = data.get("active_hand")
                 self.hand_type = data.get("hand_type")
                 print(f"\nSuccessfully loaded information from {file_path}")
         except FileNotFoundError:
@@ -234,16 +253,6 @@ class SubjectInfo:
             for idx, file in enumerate(json_files, 1):
                 print(f"{idx}. {file.replace('.json', '')}")
 
-            # Select a subject to load
-            try:
-                choice = int(input("\nSelect a subject file to load (enter the number): "))
-                if 1 <= choice <= len(json_files):
-                    selected_file = json_files[choice - 1]
-                    self.load_from_file(selected_file)
-                else:
-                    print("Invalid choice. Please select a valid number.")
-            except ValueError:
-                print("Invalid input. Please enter a valid number.")
         except Exception as e:
             print(f"\nError occurred: {e}")
 
@@ -251,7 +260,7 @@ class SubjectInfo:
 # Main program loop
 def main():
     subject = SubjectInfo()
-    
+
     while True:
         subject.show_menu()
         choice = input("\nSelect an option: ")
@@ -261,21 +270,18 @@ def main():
         elif choice == '2':
             subject.input_date_of_birth()
         elif choice == '3':
-            subject.select_hand()
+            subject.set_active_hand()
         elif choice == '4':
             subject.select_hand_type()
         elif choice == '5':
-            subject.display_information()
+            subject.show_subject_info()
         elif choice == '6':
-            subject.generate_json()
-        elif choice == '7':
             subject.save_to_file()
+        elif choice == '7':
+            subject.load_from_file()
         elif choice == '8':
-            filename = input("\nEnter the filename to load (e.g., JohnDoe_19900101.json): ")
-            subject.load_from_file(filename)
-        elif choice == '9':
             subject.show_all_subjects()
-        elif choice == '10':
+        elif choice == 'q':
             print("\nExiting the program.")
             break
         else:
