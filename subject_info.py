@@ -66,7 +66,7 @@ class SubjectInfo:
     def save_to_file(self, filename=None):
         """Save subject information to a JSON file."""
         missing_fields = self.get_missing_fields()
-        
+
         if missing_fields:
             print("\nMissing Information: Cannot save the file.")
             for field in missing_fields:
@@ -161,16 +161,16 @@ class SubjectInfo:
     def display_information(self):
         """Display the entered subject information and show missing fields."""
         print("\nSubject Information:")
-        
+
         # Display entered information
         print(f"Name: {self.name if self.name else 'Not entered'}")
         print(f"Date of Birth: {self.dob if self.dob else 'Not entered'}")
         print(f"Dominant Hand: {self.hand.capitalize() if self.hand else 'Not entered'}")
         print(f"Hand Type: {self.hand_type.capitalize() if self.hand_type else 'Not entered'}")
-        
+
         # Get the missing fields using the common method
         missing_fields = self.get_missing_fields()
-        
+
         # Display the missing fields
         if missing_fields:
             print("\nMissing Information:")
@@ -180,23 +180,20 @@ class SubjectInfo:
             print("\nAll information has been entered.")
 
     def show_menu(self):
-        """Show the main menu with options."""
-        print("#" * 40)
-        print("#" + " " * 12 + "Hand Analysis Data Entry" + " " * 12 + "#")
-        print("#" * 40)
-        print("#" + " " * 4 + "Please choose an option from the menu below:" + " " * 4 + "#")
-        print("#" * 40)
-        print("# 1. Enter Name                          #")
-        print("# 2. Enter Date of Birth                 #")
-        print("# 3. Select Hand (Left or Right)         #")
-        print("# 4. Select Hand Type (Fire, Water, Earth, Air) #")
-        print("# 5. Display Information                 #")
-        print("# 6. Generate JSON Output                #")
-        print("# 7. Save Information to File            #")
-        print("# 8. Load Information from File          #")
-        print("# 9. Show All Subjects                   #")
-        print("# 10. Exit                               #")
-        print("#" * 40)
+        print("+--------------------------------------------------+")
+        print("| SUBJECT INFO                                     |")
+        print("+--------------------------------------------------+")
+        print("| 1. Enter Name                                    |")
+        print("| 2. Enter Date of Birth                           |")
+        print("| 3. Select Hand (Left or Right)                   |")
+        print("| 4. Select Hand Type (Fire, Water, Earth, Air)    |")
+        print("| 5. Display Information                           |")
+        print("| 6. Generate JSON Output                          |")
+        print("| 7. Save Information to File                      |")
+        print("| 8. Load Information from File                    |")
+        print("| 9. Show All Subjects                             |")
+        print("| 10. Exit                                         |")
+        print("+--------------------------------------------------+")
 
     def clear_screen(self):
         """Clear the screen depending on the OS."""
